@@ -1,2 +1,2 @@
-../Core/Src/adc.c:16:6:ADC_Init	8	static
-../Core/Src/adc.c:24:6:ADC_ConvCompleteCallback	16	static
+../Core/Src/adc.c:23:6:ADC_Init	8	static
+../Core/Src/adc.c:35:6:ADC_ConvCompleteCallback	16	static

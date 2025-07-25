@@ -10,12 +10,26 @@
 
 #include "main.h"
 
+// Número de canales ADC que se leen mediante DMA
 #define NUM_ADC 2
 
+// Buffer externo donde se almacenan las conversiones ADC (12 bits sin procesar)
 extern uint16_t adc_in[NUM_ADC];
-extern uint8_t registros[];  // Referencia externa a la tabla de registros
 
+// Tabla externa de registros donde se guardan los valores procesados (8 bits)
+extern uint8_t registros[];
+
+/**
+ * @brief Inicializa y arranca el ADC con DMA para capturar NUM_ADC canales.
+ */
 void ADC_Init(void);
+
+/**
+ * @brief Callback que se llama cuando la conversión ADC ha finalizado.
+ *        Actualiza los registros con los valores ADC escalados a 8 bits.
+ *
+ * @param hadc Puntero al manejador ADC que llamó al callback.
+ */
 void ADC_ConvCompleteCallback(ADC_HandleTypeDef* hadc);
 
 #endif /* INC_ADC_H_ */
