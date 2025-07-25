@@ -22,6 +22,7 @@
 #include "registros.h"   // Variables globales de registros para comunicación
 #include "adc.h"         // Módulo ADC con DMA
 #include "i2c_slave.h"   // Módulo I2C modo esclavo
+#include "gpio.h" 		// Mñodulo GPIO
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;       // Handle ADC1
@@ -63,12 +64,28 @@ int main(void)
   /* Inicialización de módulos específicos */
   ADC_Init();              // Inicia ADC con DMA para lectura continua
   I2C_Slave_Init(&hi2c1);  // Inicia I2C en modo esclavo con interrupciones
-
+  uint8_t modo_anterior = registros[2];
   /* Bucle principal: sin lógica activa, todo por interrupciones */
   while (1)
   {
-    // El MCU queda en espera, los callbacks manejan datos ADC e I2C
+      // Lee el estado actual de los pines PD8 a PD15
+      GPIO_Leer_PD();
+
+      // Si el modo configurado de los pines (guardado en registros[2]) ha cambiado,
+      // actualiza la configuración (entrada/salida) de cada pin.
+      if (modo_anterior != registros[2])
+      {
+          GPIO_ActualizarModo_PD();
+          modo_anterior = registros[2];  // Guarda el modo actual para próximas comparaciones
+      }
+
+      // Escribe el valor almacenado en registros[3] en los pines configurados como salida
+      GPIO_Escribir_PD();
+
+      // Retardo para evitar que el loop corra demasiado rápido y saturar el bus o procesador
+      HAL_Delay(100);
   }
+
 }
 
 /**
@@ -140,7 +157,7 @@ static void MX_I2C1_Init(void)
   hi2c1.Instance = I2C1;
   hi2c1.Init.ClockSpeed = 100000;               // 100 kHz estándar
   hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_2;
-  hi2c1.Init.OwnAddress1 = 32;                   // Dirección esclavo 0x20
+  hi2c1.Init.OwnAddress1 = 0x50 << 1;                  // Dirección esclavo 0x50
   hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
   hi2c1.Init.OwnAddress2 = 0;
@@ -182,9 +199,26 @@ static void MX_DMA_Init(void)
   */
 static void MX_GPIO_Init(void)
 {
-  __HAL_RCC_GPIOH_CLK_ENABLE();
-  __HAL_RCC_GPIOA_CLK_ENABLE();
-  __HAL_RCC_GPIOB_CLK_ENABLE();
+	  GPIO_InitTypeDef GPIO_InitStruct = {0};
+	  /* USER CODE BEGIN MX_GPIO_Init_1 */
+
+	  /* USER CODE END MX_GPIO_Init_1 */
+
+	  /* GPIO Ports Clock Enable */
+	  __HAL_RCC_GPIOH_CLK_ENABLE();
+	  __HAL_RCC_GPIOA_CLK_ENABLE();
+	  __HAL_RCC_GPIOD_CLK_ENABLE();
+	  __HAL_RCC_GPIOB_CLK_ENABLE();
+
+	  /* Configura GPIO pins : PD8 PD9 PD10 PD11
+	                           PD12 PD13 PD14 PD15 */
+	  GPIO_InitStruct.Pin = GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_11
+	                          |GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15;
+	  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+	  GPIO_InitStruct.Pull = GPIO_NOPULL;
+	  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+	  /* USER CODE BEGIN MX_GPIO_Init_2 */
 }
 
 /* Callbacks que redirigen a funciones específicas de ADC e I2C */

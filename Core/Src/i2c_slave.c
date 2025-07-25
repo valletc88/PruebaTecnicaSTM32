@@ -32,7 +32,8 @@ void I2C_Slave_Init(I2C_HandleTypeDef *hi2c)
  */
 void I2C_Slave_AddrCallback(I2C_HandleTypeDef *hi2c, uint8_t TransferDirection, uint16_t AddrMatchCode)
 {
-    if (hi2c->Instance == hi2c_ptr->Instance) {
+    if (hi2c->Instance == hi2c_ptr->Instance)
+    {
         // Reiniciar índice de registro al comenzar nueva transferencia
         i2c_reg_index = 0;
 
@@ -42,7 +43,9 @@ void I2C_Slave_AddrCallback(I2C_HandleTypeDef *hi2c, uint8_t TransferDirection, 
         if (slave_direction == 0) {
             // Maestro va a escribir: preparamos recepción de registro + dato
             HAL_I2C_Slave_Receive_IT(hi2c, i2c_rx_buf, 2);
-        } else {
+        }
+        else
+        {
             // Maestro va a leer: enviamos primer byte (registro actual)
             i2c_tx_data = registros[i2c_reg_index];
             HAL_I2C_Slave_Transmit_IT(hi2c, &i2c_tx_data, 1);
@@ -56,7 +59,8 @@ void I2C_Slave_AddrCallback(I2C_HandleTypeDef *hi2c, uint8_t TransferDirection, 
  */
 void I2C_Slave_RxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
-    if (hi2c->Instance == hi2c_ptr->Instance) {
+    if (hi2c->Instance == hi2c_ptr->Instance)
+    {
         // El primer byte es el índice de registro
         i2c_reg_index = i2c_rx_buf[0];
 
@@ -74,9 +78,11 @@ void I2C_Slave_RxCpltCallback(I2C_HandleTypeDef *hi2c)
  */
 void I2C_Slave_TxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
-    if (hi2c->Instance == hi2c_ptr->Instance) {
+    if (hi2c->Instance == hi2c_ptr->Instance)
+    {
         // Verificar que el índice no exceda el número de registros
-        if (i2c_reg_index < NUM_REGISTROS) {
+        if (i2c_reg_index < NUM_REGISTROS)
+        {
             // Enviar nuevamente el dato actual del registro
             i2c_tx_data = registros[i2c_reg_index];
             HAL_I2C_Slave_Transmit_IT(hi2c, &i2c_tx_data, 1);

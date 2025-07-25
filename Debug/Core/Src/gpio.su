@@ -1,0 +1,3 @@
+../Core/Src/gpio.c:24:6:GPIO_ActualizarModo_PD	32	static
+../Core/Src/gpio.c:60:6:GPIO_Escribir_PD	16	static
+../Core/Src/gpio.c:80:6:GPIO_Leer_PD	16	static
