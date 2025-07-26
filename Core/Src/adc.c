@@ -34,13 +34,17 @@ void ADC_Init(void)
  */
 void ADC_ConvCompleteCallback(ADC_HandleTypeDef* hadc)
 {
-    // Verifica que la interrupción corresponde al ADC1 (por si hay más ADCs)
-    if (hadc->Instance == ADC1)
-    {
-        // Almacena la lectura del canal 0 en registros[0], escalando de 12 bits a 8 bits (shift 4 bits)
-        registros[0] = (uint8_t)(adc_in[0] >> 4);
+    // Factor de escalado del divisor resistivo (20V → 3.3V)
+    const float escala = 20.0f / 3.3f;
 
-        // Almacena la lectura del canal 1 en registros[1], también escalada a 8 bits
-        registros[1] = (uint8_t)(adc_in[1] >> 4);
-    }
+    // Convierte lectura ADC de 12 bits (0–4095) a tensión real de entrada
+    float v_adc0 = (adc_in[0] * 3.3f) / 4095.0f;
+    float v_in0 = v_adc0 * escala;
+
+    float v_adc1 = (adc_in[1] * 3.3f) / 4095.0f;
+    float v_in1 = v_adc1 * escala;
+
+    // Guarda la tensión real (en V × 10) como entero de 8 bits // Ejemplo: 15.6V → 156
+    registros[0] = (uint8_t)(v_in0 * 10.0f);
+    registros[1] = (uint8_t)(v_in1 * 10.0f);
 }

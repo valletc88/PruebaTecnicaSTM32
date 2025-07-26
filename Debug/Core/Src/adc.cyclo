@@ -1,2 +1,2 @@
 ../Core/Src/adc.c:23:6:ADC_Init	1
-../Core/Src/adc.c:35:6:ADC_ConvCompleteCallback	2
+../Core/Src/adc.c:35:6:ADC_ConvCompleteCallback	1
